@@ -72,21 +72,17 @@ PLOTLY : TRUE SYSTEM
 # fig.show()
 
 
-
-
-# Définir les limites du domaine spatial
 x_lim = [-20, 20]
 y_lim = [-30, 30]
 z_lim = [0, 50]
 box_size = 5
 
-
-# Calculer le nombre de boîtes dans chaque dimension
+#nombre de box
 nx = int((x_lim[1] - x_lim[0]) / box_size)
 ny = int((y_lim[1] - y_lim[0]) / box_size)
 nz = int((z_lim[1] - z_lim[0]) / box_size)
 
-# Créer une grille de boîtes
+
 matrice = np.zeros((nx, ny, nz))
 
 for state in states :
@@ -97,9 +93,44 @@ for state in states :
         k = int((z - z_lim[0]) / box_size)
         matrice[i, j, k] += 1
 
-# Normaliser pour obtenir une PDF
+#normaliser pour la pdf
 sum = np.sum(matrice)
 pdf = matrice / sum
 
-print("PDF : ", pdf)
- 
+# print("PDF : ", pdf)   matrice 12x10x8  donc 8 prints
+
+#projection sur le plan xy
+proj_xy = np.sum(pdf, axis=2)  #somme de toutes les valeurs de z
+proj_yz = np.sum(pdf, axis=0)
+proj_xz = np.sum(pdf, axis=1)
+
+print("Projection XY : \n", proj_xy)
+print("Projection YZ : \n", proj_yz)
+print("Projection XZ : \n", proj_xz)
+
+
+
+# Visualiser les projections   chat gpt oeoe
+fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+im1 = axs[0].imshow(proj_xy.T, origin='lower', extent=[x_lim[0], x_lim[1], y_lim[0], y_lim[1]])
+axs[0].set_title('Projection XY')
+axs[0].set_xlabel('X')
+axs[0].set_ylabel('Y')
+plt.colorbar(im1, ax=axs[0])
+
+im2 = axs[1].imshow(proj_yz.T, origin='lower', extent=[y_lim[0], y_lim[1], z_lim[0], z_lim[1]])
+axs[1].set_title('Projection YZ')
+axs[1].set_xlabel('Y')
+axs[1].set_ylabel('Z')
+plt.colorbar(im2, ax=axs[1])
+
+im3 = axs[2].imshow(proj_xz.T, origin='lower', extent=[x_lim[0], x_lim[1], z_lim[0], z_lim[1]])
+axs[2].set_title('Projection XZ')
+axs[2].set_xlabel('X')
+axs[2].set_ylabel('Z')
+plt.colorbar(im3, ax=axs[2])
+
+plt.tight_layout()
+plt.show()
+
+#implémentation de la distance
